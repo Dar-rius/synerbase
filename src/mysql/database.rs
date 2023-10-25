@@ -2,7 +2,6 @@
 use sqlx::{MySqlPool, Result};
 use crate::types::{Database};
 
-
 //Query for create database in mysql
 pub async fn create_database(url: &str, name_db: String) -> Result<()>{
     let pool = MySqlPool::connect(url).await?;
