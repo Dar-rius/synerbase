@@ -41,7 +41,7 @@ async fn show_table(connection: &Pool<MySql>, name_db: &String) -> Result<Vec<Ta
 
 //Query to delete all table in database
 pub async  fn delete_table(url: &str, name_db: String) -> Result<(), String>{
-    let conn = pool_connect(url).await.unwrap();
+    let conn = pool_connect(url).await.expect("Error: Connetionn failed");
     let db =  Database::new(name_db);
     let tables = show_table(&conn, &db.name_db).await.unwrap_or_else(|err| {
         panic!("{}", err);
@@ -52,7 +52,7 @@ pub async  fn delete_table(url: &str, name_db: String) -> Result<(), String>{
             Drop Table ?")
             .bind(&db.name_db)
             .bind(&item.table_name)
-            .execute(&conn).await.expect("");
+            .execute(&conn).await.expect("Error: Impossible to delete all tables");
     }
     Ok(())
 }
