@@ -70,6 +70,17 @@ pub async fn delete_database(url: &str, name_db: String) -> Result<(), String>{
 pub async fn show_database(url: &str) -> Result<(), String>{
     let conn = pool_connect(url).await.expect("Error: Connection failed");
     sqlx::query("SHOW DATABASE")
-        .fetch(&conn).await.expect("Error: Impossible to show database");
+        .fetch(&conn);
+    Ok(())
+}
+
+// Rename database
+pub async fn renanme_db(url: &str, old_name: String, new_name: String) -> Result<(), String> {
+    let conn = pool_connect(url).await.expect("Error: Connection failed");
+    let db = Database::new(old_name);
+    sqlx::query("RENAME DATABASE ? TO ?")
+        .bind(db.name_db)
+        .bind(new_name)
+        .execute(&conn).await.expect("Error: Impossible to rename database");
     Ok(())
 }
