@@ -65,3 +65,11 @@ pub async fn delete_database(url: &str, name_db: String) -> Result<(), String>{
         .execute(&conn).await.expect("Error: Impossible to delete database");
     Ok(())
 }
+
+//Query to show database
+pub async fn show_database(url: &str) -> Result<(), String>{
+    let conn = pool_connect(url).await.expect("Error: Connection failed");
+    sqlx::query("SHOW DATABASE")
+        .fetch(&conn).await.expect("Error: Impossible to show database");
+    Ok(())
+}
