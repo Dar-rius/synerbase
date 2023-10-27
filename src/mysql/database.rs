@@ -16,8 +16,8 @@ pub async fn create_db_mysql(url: &str, name_db: String) -> Result<()> {
     let query = format!("CREATE DATABASE IF NOT EXISTS {}", name_db);
     sqlx::query(&query.trim())
         .execute(&conn).await
-        .expect("Error: database already exist or impossible to create database");
-    conn.close_event().await;
+        .expect("Error: Impossible to create database");
+    conn.close().await;
     Ok(())
 }
 
@@ -52,7 +52,7 @@ pub async fn delete_table_mysql(url: &str, name_db: String) -> Result<(), String
             .bind(&item.table_name)
             .execute(&conn).await.expect("Error: Impossible to delete all tables");
     }
-    conn.close_event().await;
+    conn.close().await;
     Ok(())
 }
 
@@ -62,7 +62,7 @@ pub async fn delete_db_mysql(url: &str, name_db: String) -> Result<(), String>{
     sqlx::query("DROP DATABASE ?")
         .bind(db.name_db)
         .execute(&conn).await.expect("Error: Impossible to delete database");
-    conn.close_event().await;
+    conn.close().await;
     Ok(())
 }
 
@@ -71,7 +71,7 @@ pub async fn show_db_mysql(url: &str) -> Result<(), String>{
     let conn = pool_connect_mysql(url).await.expect("Error: Connection failed");
     sqlx::query("SHOW DATABASE")
         .fetch(&conn);
-    conn.close_event().await;
+    conn.close().await;
     Ok(())
 }
 
@@ -83,6 +83,6 @@ pub async fn rn_db_mysql(url: &str, old_name: String, new_name: String) -> Resul
         .bind(db.name_db)
         .bind(new_name)
         .execute(&conn).await.expect("Error: Impossible to rename database");
-    conn.close_event().await;
+    conn.close().await;
     Ok(())
 }
