@@ -1,3 +1,4 @@
+use std::fmt::format;
 // modules for queries in database
 use sqlx::{MySqlPool, Result, Pool, MySql};
 use crate::types::{Database};
@@ -11,13 +12,11 @@ async fn pool_connect_mysql(url: &str) -> Result<Pool<MySql>, String> {
 
 //Query to create database
 pub async fn create_db_mysql(url: &str, name_db: String) -> Result<()> {
-    let conn =pool_connect_mysql(url).await.unwrap_or_else(|err| {
-        panic!("{}", err)
-    });
-    let db =  Database::new(name_db);
-    sqlx::query("CREATE DATABASE IF NOT EXISTS ?")
-        .bind(db.name_db)
-        .execute(&conn).await.expect("Error: database already exist");
+    let conn = pool_connect_mysql(url).await.unwrap();
+    let query = format!("CREATE DATABASE IF NOT EXISTS {}", name_db);
+    sqlx::query(&query.trim())
+        .execute(&conn).await
+        .expect("Error: database already exist or impossible to create database");
     conn.close_event().await;
     Ok(())
 }

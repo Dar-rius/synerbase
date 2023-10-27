@@ -3,7 +3,7 @@ mod test_database{
     pub use server::mysql::database;
     use sqlx::MySqlPool;
 
-    const URL: &str= "mysql://root:@localhost:3306/";
+    const URL: &str= "mysql://root:@localhost:3306";
 
     #[derive(sqlx::FromRow)]
     struct Databases { name_db: String }
@@ -13,17 +13,17 @@ mod test_database{
         let db = sqlx::query_as::<_,Databases>("SHOW DATABASE")
             .fetch_all(&pool).await.unwrap();
         for i in db.iter(){
-            if &i.name_db.into() == name_db{
-                return Some(i.name_db.into());
+            if i.name_db.clone() == name_db{
+                return Some(i.name_db.clone());
             }
         }
         Some("Nothing".into())
     }
 
-    #[test]
+    #[tokio::test]
     async fn create_database(){
-        database::create_db_mysql(URL, "test_db_2".into()).await.unwrap();
-        let test = find_database("test_db_2".into()).await.unwrap();
-        assert_eq!("test_db_2", test);
+        database::create_db_mysql(URL, "rust_test".to_string()).await.unwrap();
+        let test = find_database("rust_test".to_string()).await.unwrap();
+        assert_eq!("rust_test", test);
     }
 }
