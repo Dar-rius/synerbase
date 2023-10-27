@@ -3,23 +3,22 @@ use sqlx::{MySqlPool, Result, Pool, MySql};
 use crate::types::{Database};
 
 //Connection Pool
-async fn pool_connect(url: &str) -> Result<Pool<MySql>, String> {
+async fn pool_connect_mysql(url: &str) -> Result<Pool<MySql>, String> {
     let pool = MySqlPool::connect(url).await
         .expect("Error: Connection is Impossible");
         Ok(pool)
 }
 
 //Query to create database
-pub async fn create_database(url: &str, name_db: String) -> Result<()> {
-    let conn =pool_connect(url).await.unwrap_or_else(|err| {
+pub async fn create_db_mysql(url: &str, name_db: String) -> Result<()> {
+    let conn =pool_connect_mysql(url).await.unwrap_or_else(|err| {
         panic!("{}", err)
     });
     let db =  Database::new(name_db);
     sqlx::query("CREATE DATABASE IF NOT EXISTS ?")
         .bind(db.name_db)
-        .execute(&conn).await.unwrap_or_else(|err| {
-        panic!("{}", err)
-    });
+        .execute(&conn).await.expect("Error: database already exist");
+    conn.close_event().await;
     Ok(())
 }
 
@@ -30,7 +29,7 @@ struct Tables {
 }
 
 //function to get all tables from database name
-async fn show_table(connection: &Pool<MySql>, name_db: &String) -> Result<Vec<Tables>, String> {
+async fn show_tb_mysql(connection: &Pool<MySql>, name_db: &String) -> Result<Vec<Tables>, String> {
     let tables = sqlx::query_as::<_,Tables>(
         "USE ?; \
         SHOW TABLES;")
@@ -40,10 +39,10 @@ async fn show_table(connection: &Pool<MySql>, name_db: &String) -> Result<Vec<Ta
 }
 
 //Query to delete all table in database
-pub async fn delete_table(url: &str, name_db: String) -> Result<(), String> {
-    let conn = pool_connect(url).await.expect("Error: Connection failed");
+pub async fn delete_table_mysql(url: &str, name_db: String) -> Result<(), String> {
+    let conn = pool_connect_mysql(url).await.expect("Error: Connection failed");
     let db =  Database::new(name_db);
-    let tables = show_table(&conn, &db.name_db).await.unwrap_or_else(|err| {
+    let tables = show_tb_mysql(&conn, &db.name_db).await.unwrap_or_else(|err| {
         panic!("{}", err);
     });
     for item in tables.iter() {
@@ -54,33 +53,37 @@ pub async fn delete_table(url: &str, name_db: String) -> Result<(), String> {
             .bind(&item.table_name)
             .execute(&conn).await.expect("Error: Impossible to delete all tables");
     }
+    conn.close_event().await;
     Ok(())
 }
 
-pub async fn delete_database(url: &str, name_db: String) -> Result<(), String>{
-    let conn = pool_connect(url).await.expect("Error: Connection failed");
+pub async fn delete_db_mysql(url: &str, name_db: String) -> Result<(), String>{
+    let conn = pool_connect_mysql(url).await.expect("Error: Connection failed");
     let db = Database::new(name_db);
     sqlx::query("DROP DATABASE ?")
         .bind(db.name_db)
         .execute(&conn).await.expect("Error: Impossible to delete database");
+    conn.close_event().await;
     Ok(())
 }
 
 //Query to show database
-pub async fn show_database(url: &str) -> Result<(), String>{
-    let conn = pool_connect(url).await.expect("Error: Connection failed");
+pub async fn show_db_mysql(url: &str) -> Result<(), String>{
+    let conn = pool_connect_mysql(url).await.expect("Error: Connection failed");
     sqlx::query("SHOW DATABASE")
         .fetch(&conn);
+    conn.close_event().await;
     Ok(())
 }
 
 // Rename database
-pub async fn renanme_db(url: &str, old_name: String, new_name: String) -> Result<(), String> {
-    let conn = pool_connect(url).await.expect("Error: Connection failed");
+pub async fn rn_db_mysql(url: &str, old_name: String, new_name: String) -> Result<(), String> {
+    let conn = pool_connect_mysql(url).await.expect("Error: Connection failed");
     let db = Database::new(old_name);
     sqlx::query("RENAME DATABASE ? TO ?")
         .bind(db.name_db)
         .bind(new_name)
         .execute(&conn).await.expect("Error: Impossible to rename database");
+    conn.close_event().await;
     Ok(())
 }
