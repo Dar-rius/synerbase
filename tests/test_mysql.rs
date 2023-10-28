@@ -4,6 +4,7 @@ mod test_database{
     use sqlx::MySqlPool;
 
     const URL: &str= "mysql://root:@localhost:3306";
+    const URL_1: &str= "mysql://root:@localhost:3306/rust_test";
 
     #[derive(sqlx::FromRow)]
     struct Databases { name_db: String }
@@ -22,7 +23,9 @@ mod test_database{
 
     #[tokio::test]
     async fn create_database(){
-        database::create_db_mysql(URL, "rust_test".to_string()).await.unwrap();
+        database::create_db_mysql(URL, &"test_21".to_string())
+            .await
+            .unwrap();
         //let test = find_database("rust_test".to_string()).await.unwrap();
         //assert_eq!("rust_test", test);
     }
