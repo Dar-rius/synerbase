@@ -53,11 +53,12 @@ pub async fn delete_db_mysql(url: &str, name_db: &String) -> Result<(), String>{
 }
 
 //Query to show database
-pub async fn show_db_mysql(url: &str) -> Result<(), String>{
+pub async fn show_db_mysql(url: &str) -> Result<Vec<String>, String>{
     let conn = pool_connect_mysql(url).await
         .expect("Error: Connection failed");
-    sqlx::query("SHOW DATABASE")
-        .fetch(&conn);
+    let databases = sqlx::query_scalar("SHOW DATABASES")
+        .fetch_all(&conn).await
+        .expect("Error: Impossible to get all databases");
     conn.close().await;
-    Ok(())
+    Ok(databases)
 }

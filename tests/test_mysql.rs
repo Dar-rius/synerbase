@@ -22,7 +22,7 @@ mod test_database{
 
     #[tokio::test]
     async fn show_database(){
-        database::show_db_mysql(URL)
+        let test = database::show_db_mysql(URL)
             .await
             .unwrap();
     }
