@@ -1,5 +1,6 @@
+use std::fmt::format;
 // modules for queries in database
-use sqlx::{MySqlPool, Result, Pool, MySql, query};
+use sqlx::{MySqlPool, Result, Pool, MySql};
 use std::process::Command;
 use std::fs::write;
 //use crate::types::{Database};
@@ -74,27 +75,33 @@ pub async fn show_db_mysql(url: &str) -> Result<Vec<String>, String>{
 }
 
 
-pub fn backup_db_mysql(user: &String, name_db: &String, name_backup: &String) -> Result<(), String>{
-    let command = Command::new("cmd")
-        .args(&["mysqldump -u", user, "-p", name_db])
+pub fn backup_db_mysql(user: &str, name_db: &str, name_backup: &str) -> Result<(), String>{
+    let output = Command::new("cmd")
+        .args(&["/C", "mysqldump -u", user, name_db])
         .output()
         .expect("Error: Problem in dump Database");
-    if command.status.success(){
-        write(path, &command.stdout)
-            .expect("Error: Impossible to create backup");
+    if output.status.success(){
+        write(path, output.stdout).expect("Error in writing");
+    } else{
+        println!("Error");
     }
     Ok(())
 }
 
 
 //Query to rename database
-pub async fn rn_db_mysql(url_1: &str, url_2: &str, user: &String, old_name: &String, new_name: &String) -> Result<(), String>{
-    let query = format!("SOURCE {path}");
+pub async fn rn_db_mysql(url_1: &str, user: &str, old_name: &String, new_name: &String) -> Result<(), String>{
     backup_db_mysql(user, old_name, new_name)?;
     create_db_mysql(url_1, new_name).await?;
-    let conn  =  pool_connect_mysql(url_2).await?;
-    sqlx::query(&query).execute(&conn).await
-        .expect("Error: Impossible to use Database");
+    let output = Command::new("cmd")
+        .args(&["/C", "mysql -u", user, "-p", {new_name}, "<", {&path}])
+        .output()
+        .expect("Error: Problem in source Database");
     delete_db_mysql(url_1, old_name).await?;
+    if output.status.success(){
+        println!("Pass");
+    } else {
+        println!("Failed");
+    }
     Ok(())
 }

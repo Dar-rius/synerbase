@@ -34,18 +34,16 @@ mod test_database{
 
     #[test]
     fn backup_db(){
-        database::backup_db_mysql(&"root".into(),
-                              &"test_2".into(),
-                              &"back_test".into()).unwrap();
+        database::backup_db_mysql(&"root",
+                              &"last_again",
+                              &"test_5").unwrap();
     }
 
     #[tokio::test]
     async fn rename_db(){
         database::rn_db_mysql(&URL,
-                              &URL_1,
-            &"root".into(),
-            &"new_test".into(), &"test_true".into()).await.unwrap();
-
+            &"root",
+            &"new_test".into(), &"last_test_1".into()).await
+            .unwrap();
     }
 }
-
