@@ -3,11 +3,11 @@ mod test_database{
     pub use server::mysql::database;
 
     const URL: &str= "mysql://root:@localhost:3307";
-    const URL_1: &str= "mysql://root:@localhost:3307/test_true";
+    const URL_1: &str= "mysql://root:@localhost:3307/last_test_2";
 
     #[tokio::test]
     async fn create_database(){
-        database::create_db_mysql(URL, &"test_2".to_string())
+        database::create_db_mysql(URL, &"test_2")
             .await
             .unwrap();
     }
@@ -15,7 +15,7 @@ mod test_database{
     #[tokio::test]
     #[ignore]
     async fn drop_database(){
-        database::delete_db_mysql(URL, &"test_2".to_string())
+        database::delete_db_mysql(URL, &"test_2")
             .await
             .unwrap();
     }
@@ -36,14 +36,14 @@ mod test_database{
     fn backup_db(){
         database::backup_db_mysql(&"root",
                               &"last_again",
-                              &"test_5").unwrap();
+                              &"test_7").unwrap();
     }
 
     #[tokio::test]
     async fn rename_db(){
         database::rn_db_mysql(&URL,
             &"root",
-            &"new_test".into(), &"last_test_1".into()).await
+            &"last_test_1", &"last_test_3").await
             .unwrap();
     }
 }
