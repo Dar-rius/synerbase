@@ -13,9 +13,8 @@ mod test_database{
     }
 
     #[tokio::test]
-    #[ignore]
     async fn drop_database(){
-        database::delete_db_mysql(URL, &"test_2")
+        database::delete_db_mysql(URL, &"test")
             .await
             .unwrap();
     }

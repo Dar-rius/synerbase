@@ -28,7 +28,6 @@ async fn show_tb(conn: &Pool<MySql>) -> Result<Vec<String>, String> {
     let tables = sqlx::query_scalar("SHOW TABLES")
     .fetch_all(conn).await
         .expect("Error: Impossible to found tables");
-    conn.close().await;
     Ok(tables)
 }
 
@@ -79,7 +78,7 @@ fn new_path(file: &str) -> String{
 }
 
 
-// Function to do backuo database
+// Function to do backup database
 pub fn backup_db_mysql(user: &str, name_db: &str, name_backup: &str) -> Result<(), String>{
     let path = new_path(name_backup);
     let output = Command::new("cmd")
@@ -95,16 +94,17 @@ pub fn backup_db_mysql(user: &str, name_db: &str, name_backup: &str) -> Result<(
 }
 
 
-//Query to rename database
-pub async fn rn_db_mysql(url_1: &str, user: &str, old_name: &str, new_name: &str) -> Result<String, String>{
+//Function to rename database
+pub async fn rn_db_mysql(url: &str, user: &str, old_name: &str, new_name: &str) -> Result<String, String>{
     let path = new_path(new_name);
     backup_db_mysql(user, old_name, new_name)?;
-    create_db_mysql(url_1, new_name).await?;
+    create_db_mysql(url, new_name).await?;
     let output = Command::new("cmd")
         .args(&["/C", "mysql -u", user, {new_name}, "<", {&path}])
         .output()
         .expect("Error: Problem in source Database");
-    delete_db_mysql(url_1, old_name).await?;
+    delete_db_mysql(url, old_name).await?;
+
     if output.status.success(){
        return Ok("Success !".into());
     } else {
