@@ -85,7 +85,7 @@ pub fn backup_db_mysql(user: &str, name_db: &str, name_backup: &str) -> Result<(
         .args(&["/C", "mysqldump -u", user, name_db])
         .output()
         .expect("Error: Problem in dump Database");
-    if output.status.success(){
+    if output.status.success() {
         write(path, output.stdout).expect("Error in writing");
     } else{
         println!("Error");

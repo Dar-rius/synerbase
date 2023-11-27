@@ -1,8 +1,9 @@
 #[cfg(test)]
 mod test_database {
-    use synerbase::{assert_db_dropped, assert_db_exist};
+    use synerbase::{assert_backup, assert_db_dropped, assert_db_exist};
     pub use synerbase::mysql::database;
     pub use synerbase::types::TypeSGBD;
+    pub use std::{env, process::Command};
 
     const URL: &str= "mysql://root:@localhost:3307";
     const URL_1: &str= "mysql://root:@localhost:3307/last_test_2";
@@ -38,8 +39,9 @@ mod test_database {
     #[test]
     fn backup_db() {
         database::backup_db_mysql(&"root",
-                              &"last_again",
-                              &"test_7").unwrap();
+                              &"rust_test",
+                              &"rust_test_back").unwrap();
+        assert_backup!("rust_test_back");
     }
 
     #[tokio::test]
