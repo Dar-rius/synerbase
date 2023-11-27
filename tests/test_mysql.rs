@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test_database {
-    use synerbase::assert_db_exist;
+    use synerbase::{assert_db_dropped, assert_db_exist};
     pub use synerbase::mysql::database;
     pub use synerbase::types::TypeSGBD;
 
@@ -17,9 +17,10 @@ mod test_database {
 
     #[tokio::test]
     async fn drop_database() {
-        database::delete_db_mysql(URL, &"test")
+        database::delete_db_mysql(URL, &"last_test_3")
             .await
             .unwrap();
+        assert_db_dropped!(TypeSGBD::Mysql, "last_test_3", URL);
     }
 
     #[tokio::test]
