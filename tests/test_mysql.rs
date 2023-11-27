@@ -2,6 +2,7 @@
 mod test_database {
     use synerbase::assert_db_exist;
     pub use synerbase::mysql::database;
+    pub use synerbase::types::TypeSGBD;
 
     const URL: &str= "mysql://root:@localhost:3307";
     const URL_1: &str= "mysql://root:@localhost:3307/last_test_2";
@@ -11,7 +12,7 @@ mod test_database {
         database::create_db_mysql(URL, &"test_7")
             .await
             .unwrap();
-        assert_db_exist!("test_8", URL);
+        assert_db_exist!(TypeSGBD::Mysql, "test_7", URL);
     }
 
     #[tokio::test]

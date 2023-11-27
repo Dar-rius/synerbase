@@ -1,6 +1,11 @@
 //Bind limit for mysql and postgres
 pub const BIND_LIMIT: usize = 65535;
 
+pub enum TypeSGBD {
+    Mysql,
+    Postgres
+}
+
 //Data Structure for database
 pub struct Database {
     pub name_db: String
