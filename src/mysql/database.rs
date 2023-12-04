@@ -3,6 +3,8 @@ use sqlx::{MySqlPool, Result, Pool, MySql};
 use std::process::Command;
 use std::{fs::write, env};
 
+use crate::check_name;
+
 //Connection Pool
 async fn pool_connect_mysql(url: &str) -> Result<Pool<MySql>, String> {
     let pool = MySqlPool::connect(url).await
@@ -13,6 +15,7 @@ async fn pool_connect_mysql(url: &str) -> Result<Pool<MySql>, String> {
 
 //Query to create database
 pub async fn create_db_mysql(url: &str, name_db: &str) -> Result<(), String> {
+    check_name!(name_db);
     let conn = pool_connect_mysql(url).await.unwrap();
     let query = format!("CREATE DATABASE IF NOT EXISTS {name_db}");
     sqlx::query(&query.trim())
@@ -48,6 +51,7 @@ pub async fn delete_tables_mysql(url: &str) -> Result<(), String>{
 
 //Query to delete db
 pub async fn delete_db_mysql(url: &str, name_db: &str) -> Result<(), String>{
+    check_name!(name_db);
     let conn = pool_connect_mysql(url).await
         .unwrap();
     let query = format!("DROP DATABASE {name_db}");
@@ -80,6 +84,7 @@ fn new_path(file: &str) -> String{
 
 // Function to do backup database
 pub fn backup_db_mysql(user: &str, name_db: &str, name_backup: &str) -> Result<(), String>{
+    check_name!(name_db, name_backup);
     let path = new_path(name_backup);
     let output = Command::new("cmd")
         .args(&["/C", "mysqldump -u", user, name_db])
@@ -96,6 +101,7 @@ pub fn backup_db_mysql(user: &str, name_db: &str, name_backup: &str) -> Result<(
 
 //Function to rename database
 pub async fn rn_db_mysql(url: &str, user: &str, old_name: &str, new_name: &str) -> Result<String, String>{
+    check_name!(old_name, new_name);
     let path = new_path(new_name);
     backup_db_mysql(user, old_name, new_name)?;
     create_db_mysql(url, new_name).await?;

@@ -17,10 +17,10 @@ mod test_database {
 
     #[tokio::test]
     async fn create_database() {
-        database::create_db_mysql(URL, &"test_7")
+        database::create_db_mysql(URL, &"test_1")
             .await
             .unwrap();
-        assert_db_exist!(TypeSGBD::Mysql, "test_7", URL, false);
+        assert_db_exist!(TypeSGBD::Mysql, "test_1", URL, false);
     }
 
     #[tokio::test]

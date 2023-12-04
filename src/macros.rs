@@ -79,3 +79,24 @@ macro_rules! assert_backup {
         panic!("Error: database name don't found");
     };
 }
+
+//Macro to check if name db or table start by number
+#[macro_export]
+macro_rules! check_name {
+    ($name:expr) => {
+        for i in 0..10 {
+            let num = format!("{}", i);
+            if $name.starts_with(&num) {
+                panic!("Error: The name start with a number");
+            }
+        }
+    };
+    ($name1:expr, $name2:expr) => {
+        for i in 0..10 {
+            let num = format!("{}", i);
+            if $name1.starts_with(&num) || $name2.starts_with(&num) {
+                panic!("Error: The name start with a number");
+            }
+        }
+    }
+}
