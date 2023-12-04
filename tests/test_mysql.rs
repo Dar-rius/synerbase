@@ -40,8 +40,8 @@ mod test_database {
     fn backup_db() {
         database::backup_db_mysql(&"root",
                               &"rust_test",
-                              &"rust_test_back").unwrap();
-        assert_backup!("rust_test_back");
+                              &"rust_test").unwrap();
+        assert_backup!("rust_test.sql");
     }
 
     #[tokio::test]

@@ -24,7 +24,7 @@ macro_rules! assert_db_exist {
     };
 }
 
-// Macro to check that database is dropped
+// Macro to check that database is dropped 
 #[macro_export]
 macro_rules! assert_db_dropped {
     ($typeSGBD:expr, $nameDB:expr, $url:expr) => {
@@ -52,24 +52,18 @@ macro_rules! assert_db_dropped {
 #[macro_export]
 macro_rules! assert_backup {
     ($nameDB:expr) => {
-        use std::{process::Command, process::Stdio, env};
-        use std::io::{self, Write};
+        use std::{fs, env};
+        
+        let directory_1 = format!("{}\\backup", env::current_dir().unwrap().to_str().unwrap());
+        let directory_2 = format!("{}\\backup\\{}", env::current_dir().unwrap().to_str().unwrap(), $nameDB);
 
-        let output = Command::new("cmd")
-            .args([format!("{}\\backup", env::current_dir().unwrap().to_str().unwrap()), "dir"])
-            .stdin(Stdio::piped())
-            .output()
-            .expect("Error: Problem in command");
-        if output.status.success() {
-            for i in output.stdout {
-                let data = String::from
-                if data == $nameDB{
-                    return println!("Good");
-                }
+        for entry in fs::read_dir(directory_1).unwrap(){
+            let data = entry.unwrap().path();
+            if  data.to_str() == Some(&directory_2)  {
+                println!("Success");
+                return;
             }
-            panic!("Error");
-        } else {
-            println!("Error in output");
         }
+        panic!("Error: database name don't found");
     };
 }
