@@ -1,17 +1,16 @@
 // modules for queries in database
-use sqlx::{MySqlPool, Result, Pool, MySql};
+use sqlx::{MySqlPool, Pool, MySql};
 use std::process::Command;
 use std::{fs::write, env};
-
 use crate::check_name;
+use crate::mysql::table::show_tb;
 
 //Connection Pool
-async fn pool_connect_mysql(url: &str) -> Result<Pool<MySql>, String> {
+pub async fn pool_connect_mysql(url: &str) -> Result<Pool<MySql>, String> {
     let pool = MySqlPool::connect(url).await
         .expect("Error: Connection is Impossible");
         Ok(pool)
 }
-
 
 //Query to create database
 pub async fn create_db_mysql(url: &str, name_db: &str) -> Result<(), String> {
@@ -26,19 +25,10 @@ pub async fn create_db_mysql(url: &str, name_db: &str) -> Result<(), String> {
 }
 
 
-//Query to get all tables in databases
-pub async fn show_tb(conn: &Pool<MySql>) -> Result<Vec<String>, String> {
-    let tables = sqlx::query_scalar("SHOW TABLES")
-    .fetch_all(conn).await
-        .expect("Error: Impossible to found tables");
-    Ok(tables)
-}
-
-
 //Query to delete all tables
 pub async fn delete_tables_mysql(url: &str) -> Result<(), String>{
+    let tables = show_tb(url).await.unwrap();
     let conn = pool_connect_mysql(url).await.unwrap();
-    let tables = show_tb(&conn).await.unwrap();
     for item in tables {
         let query = format!("DROP TABLE IF EXISTS {item}");
         sqlx::query(&query).execute(&conn).await

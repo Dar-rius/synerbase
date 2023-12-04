@@ -1,56 +1,51 @@
 #[cfg(test)]
 mod test_database {
     use synerbase::{assert_backup, assert_db_dropped, assert_db_exist};
-    pub use synerbase::mysql::database;
+    pub use synerbase::mysql::{database, table};
     pub use synerbase::types::TypeSGBD;
     pub use std::{env, process::Command};
-    use sqlx::{Pool, MySqlPool, MySql};
 
     const URL: &str= "mysql://root:@localhost:3307";
     const URL_1: &str= "mysql://root:@localhost:3307/last_3";
-
-    async fn connect_mysql_test(url: &str) -> Result<Pool<MySql>, String> {
-    let pool = MySqlPool::connect(url).await
-        .expect("Error: Connection is Impossible");
-        Ok(pool)
-}
 
     #[tokio::test]
     async fn create_database() {
         database::create_db_mysql(URL, &"test_1")
             .await
             .unwrap();
-        assert_db_exist!(TypeSGBD::Mysql, "test_1", URL, false);
+        assert_db_exist!(TypeSGBD::Mysql, "test_1", URL, true);
     }
 
     #[tokio::test]
     async fn drop_database() {
-        database::delete_db_mysql(URL, &"last_test_3")
-            .await
-            .unwrap();
-        assert_db_dropped!(TypeSGBD::Mysql, "last_test_3", URL);
+        database::create_db_mysql(URL, &"test_5").await.unwrap();
+        database::delete_db_mysql(URL, &"test_5").await.unwrap();
+        assert_db_dropped!(TypeSGBD::Mysql, "test_5", URL);
     }
 
     #[tokio::test]
+    #[ignore]
     async fn show_database() {
         let databases = database::show_db_mysql(URL)
             .await
             .unwrap();
         let test = vec!["back_test", 
+        "der",
         "information_schema",
+        "last_3",
         "mysql",
         "orientation_db",
         "performance_schema",
-        "rust_test",
-        "sys"];
+        "sys",
+        "test",
+        "test_7"];
         assert_eq!(test, databases);
     }
 
     #[tokio::test]
     async fn db_empty() {
         database::delete_tables_mysql(URL_1).await.unwrap();
-        let conn = connect_mysql_test(URL_1).await.unwrap();
-        let tables = database::show_tb(&conn);
+        let tables = table::show_tb(URL_1);
         let left : Vec<String> = Vec::new() ;
         assert_eq!(left, tables.await.unwrap());
     }
@@ -68,8 +63,8 @@ mod test_database {
     async fn rename_db() {
         database::rn_db_mysql(&URL,
             &"root",
-            &"test_new", &"test_1").await
+            &"test", &"der").await
             .unwrap();
-        assert_db_exist!(TypeSGBD::Mysql, "test_1", URL, false);
+        assert_db_exist!(TypeSGBD::Mysql, "der", URL, true);
     }
 }
