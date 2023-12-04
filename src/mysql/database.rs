@@ -24,7 +24,7 @@ pub async fn create_db_mysql(url: &str, name_db: &str) -> Result<(), String> {
 
 
 //Query to get all tables in databases
-async fn show_tb(conn: &Pool<MySql>) -> Result<Vec<String>, String> {
+pub async fn show_tb(conn: &Pool<MySql>) -> Result<Vec<String>, String> {
     let tables = sqlx::query_scalar("SHOW TABLES")
     .fetch_all(conn).await
         .expect("Error: Impossible to found tables");

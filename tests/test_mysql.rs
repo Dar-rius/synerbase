@@ -4,9 +4,16 @@ mod test_database {
     pub use synerbase::mysql::database;
     pub use synerbase::types::TypeSGBD;
     pub use std::{env, process::Command};
+    use sqlx::{Pool, MySqlPool, MySql};
 
     const URL: &str= "mysql://root:@localhost:3307";
-    const URL_1: &str= "mysql://root:@localhost:3307/last_test_2";
+    const URL_1: &str= "mysql://root:@localhost:3307/last_3";
+
+    async fn connect_mysql_test(url: &str) -> Result<Pool<MySql>, String> {
+    let pool = MySqlPool::connect(url).await
+        .expect("Error: Connection is Impossible");
+        Ok(pool)
+}
 
     #[tokio::test]
     async fn create_database() {
@@ -26,14 +33,26 @@ mod test_database {
 
     #[tokio::test]
     async fn show_database() {
-        database::show_db_mysql(URL)
+        let databases = database::show_db_mysql(URL)
             .await
             .unwrap();
+        let test = vec!["back_test", 
+        "information_schema",
+        "mysql",
+        "orientation_db",
+        "performance_schema",
+        "rust_test",
+        "sys"];
+        assert_eq!(test, databases);
     }
 
     #[tokio::test]
-    async fn database_empty() {
-        database::delete_tables_mysql(URL_1).await.unwrap()
+    async fn db_empty() {
+        database::delete_tables_mysql(URL_1).await.unwrap();
+        let conn = connect_mysql_test(URL_1).await.unwrap();
+        let tables = database::show_tb(&conn);
+        let left : Vec<String> = Vec::new() ;
+        assert_eq!(left, tables.await.unwrap());
     }
 
     #[test]
@@ -48,7 +67,8 @@ mod test_database {
     async fn rename_db() {
         database::rn_db_mysql(&URL,
             &"root",
-            &"last_test_1", &"last_test_3").await
+            &"last_3", &"last_2").await
             .unwrap();
+        assert_db_exist!(TypeSGBD::Mysql, "last_2", URL);
     }
 }
