@@ -80,7 +80,7 @@ macro_rules! assert_backup {
     };
 }
 
-//Macro to check if name db or table start by number
+
 #[macro_export]
 macro_rules! check_name {
     ($name:expr) => {

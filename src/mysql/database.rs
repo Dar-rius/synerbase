@@ -114,6 +114,6 @@ pub async fn rn_db_mysql(url: &str, user: &str, old_name: &str, new_name: &str) 
     if output.status.success(){
        return Ok("Success !".into());
     } else {
-       return Ok("Failed !".into());
+       panic!("This process don't run");
     }
 }

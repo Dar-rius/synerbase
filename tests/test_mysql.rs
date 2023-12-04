@@ -68,8 +68,8 @@ mod test_database {
     async fn rename_db() {
         database::rn_db_mysql(&URL,
             &"root",
-            &"last_3", &"last_2").await
+            &"test_new", &"test_1").await
             .unwrap();
-        assert_db_exist!(TypeSGBD::Mysql, "last_2", URL, true);
+        assert_db_exist!(TypeSGBD::Mysql, "test_1", URL, false);
     }
 }
