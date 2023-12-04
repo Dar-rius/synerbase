@@ -88,7 +88,7 @@ pub fn backup_db_mysql(user: &str, name_db: &str, name_backup: &str) -> Result<(
     if output.status.success() {
         write(path, output.stdout).expect("Error in writing");
     } else{
-        println!("Error");
+        println!("Error: Create file backup failed");
     }
     Ok(())
 }

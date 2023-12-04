@@ -3,7 +3,7 @@ pub use crate::types::TypeSGBD;
 // Macro to check that database exist
 #[macro_export]
 macro_rules! assert_db_exist {
-    ($typeSGBD:expr, $recent_db:expr, $url:expr) => {
+    ($typeSGBD:expr, $recent_db:expr, $url:expr, $del:expr) => {
         match $typeSGBD {
              TypeSGBD::Mysql => {
                 let databases = database::show_db_mysql(&$url)
@@ -13,6 +13,11 @@ macro_rules! assert_db_exist {
                 for i in databases {
                     if i == $recent_db {
                         println!("Test success: Database is found");
+                        if $del == true {
+                            database::delete_db_mysql(&$url, &$recent_db)
+                            .await
+                            .unwrap();
+                        }
                         return;
                     }
                 }
@@ -53,16 +58,21 @@ macro_rules! assert_db_dropped {
 // Macro to check that backup's file exist really
 #[macro_export]
 macro_rules! assert_backup {
-    ($nameDB:expr) => {
+    ($nameDB:expr, $del:expr, $url:expr) => {
         use std::{fs, env};
         
         let directory_1 = format!("{}\\backup", env::current_dir().unwrap().to_str().unwrap());
-        let directory_2 = format!("{}\\backup\\{}", env::current_dir().unwrap().to_str().unwrap(), $nameDB);
+        let directory_2 = format!("{}\\backup\\{}.sql", env::current_dir().unwrap().to_str().unwrap(), $nameDB);
 
         for entry in fs::read_dir(directory_1).unwrap() {
             let data = entry.unwrap().path();
             if  data.to_str() == Some(&directory_2) {
                 println!("Success");
+                if $del == true {
+                    database::delete_db_mysql(&$url, &$nameDB)
+                            .await
+                            .unwrap();
+                }
                 return;
             }
         }

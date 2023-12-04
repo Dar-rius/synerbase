@@ -20,7 +20,7 @@ mod test_database {
         database::create_db_mysql(URL, &"test_7")
             .await
             .unwrap();
-        assert_db_exist!(TypeSGBD::Mysql, "test_7", URL);
+        assert_db_exist!(TypeSGBD::Mysql, "test_7", URL, false);
     }
 
     #[tokio::test]
@@ -55,12 +55,13 @@ mod test_database {
         assert_eq!(left, tables.await.unwrap());
     }
 
-    #[test]
-    fn backup_db() {
+    #[tokio::test]
+    async fn backup_db() {
+        database::create_db_mysql(URL, "test_f").await.unwrap();
         database::backup_db_mysql(&"root",
-                              &"rust_test",
-                              &"rust_test").unwrap();
-        assert_backup!("rust_test.sql");
+                              &"test_f",
+                              &"test_f").unwrap();
+        assert_backup!("test_f", true, URL);
     }
 
     #[tokio::test]
@@ -69,6 +70,6 @@ mod test_database {
             &"root",
             &"last_3", &"last_2").await
             .unwrap();
-        assert_db_exist!(TypeSGBD::Mysql, "last_2", URL);
+        assert_db_exist!(TypeSGBD::Mysql, "last_2", URL, true);
     }
 }
